@@ -11,7 +11,7 @@ Dự án cá nhân, lấy cảm hứng từ workflow của các app retouch châ
 | Phase | Nội dung | Trạng thái |
 |---|---|---|
 | 0 | Kiến trúc & chọn công nghệ | Đã duyệt |
-| 1 | Image viewer (mở ảnh, preview, zoom, thumbnail, export) | Đang làm: Step 1.1 skeleton |
+| 1 | Image viewer (mở ảnh, preview, zoom, thumbnail, export) | Đang làm: Step 1.2b giao diện |
 | 2–10 | Face detection → … → Batch | Chưa bắt đầu |
 
 ## Tech stack

@@ -10,8 +10,6 @@ jobs:
     # The app targets Windows 10/11, so tests run there.
     runs-on: windows-latest
     timeout-minutes: 15
-    env:
-      QT_QPA_PLATFORM: offscreen
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
