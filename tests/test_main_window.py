@@ -33,7 +33,8 @@ def test_menus_and_shortcuts(window):
 
 
 def test_unbuilt_features_are_disabled(window):
-    for key in ("open_image", "export", "undo", "redo", "zoom_in", "before_after"):
+    assert window.actions["open_image"].isEnabled()
+    for key in ("export", "undo", "redo", "zoom_in", "before_after"):
         assert not window.actions[key].isEnabled(), key
     assert not window.export_button.isEnabled()
     assert window.actions["quit"].isEnabled()
