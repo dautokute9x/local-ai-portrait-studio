@@ -52,6 +52,38 @@ QSlider::handle:horizontal {{ background: {TEXT}; width: 12px; margin: -5px 0;
 QSlider::handle:horizontal:disabled {{ background: {TEXT_DIM}; }}
 QScrollArea {{ border: none; }}
 QToolTip {{ background: {PANEL_ALT}; color: {TEXT}; border: 1px solid {BORDER}; }}
+QScrollBar:vertical {{ background: {PANEL}; width: 10px; margin: 0; }}
+QScrollBar::handle:vertical {{ background: {BORDER}; border-radius: 4px; min-height: 24px;
+                               margin: 2px; }}
+QScrollBar::handle:vertical:hover {{ background: {TEXT_DIM}; }}
+QScrollBar::add-line, QScrollBar::sub-line {{ height: 0; width: 0; }}
+QScrollBar::add-page, QScrollBar::sub-page {{ background: none; }}
+
+/* Canvas toolbar + generic tool buttons */
+QFrame#CanvasToolbar {{ background: {PANEL}; border-bottom: 1px solid {BORDER}; }}
+QFrame#CanvasToolbar QLabel {{ background: {PANEL}; color: {TEXT_DIM}; }}
+QToolButton {{ background: transparent; border: 1px solid transparent; border-radius: 4px;
+               padding: 3px 9px; color: {TEXT}; }}
+QToolButton:hover {{ border-color: {BORDER}; }}
+QToolButton:checked {{ background: {ACCENT}; color: white; }}
+QToolButton:disabled {{ color: {TEXT_DIM}; }}
+
+/* Collapsible sections in the side panels */
+#SidePanel QFrame#Separator {{ background: {BORDER}; }}
+#SidePanel QToolButton#SectionHeader {{ font-weight: 600; border: none; padding: 7px 0;
+                                        text-align: left; }}
+#SidePanel QToolButton#SectionReset {{ color: {TEXT_DIM}; font-size: 11px; padding: 2px 6px; }}
+#SidePanel QToolButton#SectionReset:hover {{ color: {TEXT}; }}
+
+/* Inputs (scoped to beat the #SidePanel background rule above) */
+#SidePanel QSpinBox, #SidePanel QComboBox, QFrame#CanvasToolbar QComboBox {{
+    background: {PANEL_ALT}; border: 1px solid {BORDER}; border-radius: 3px;
+    padding: 1px 4px; min-height: 18px; }}
+/* Hide the spin arrows by sizing them to zero (see SliderRow). */
+#SidePanel QSpinBox::up-button, #SidePanel QSpinBox::down-button {{ width: 0; border: none; }}
+#SidePanel QSpinBox:focus, #SidePanel QComboBox:focus {{ border-color: {ACCENT}; }}
+#SidePanel QSpinBox:disabled, #SidePanel QComboBox:disabled,
+QFrame#CanvasToolbar QComboBox:disabled {{ color: {TEXT_DIM}; }}
 """
 
 

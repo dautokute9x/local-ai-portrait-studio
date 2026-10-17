@@ -9,14 +9,22 @@ from __future__ import annotations
 
 from PySide6.QtCore import QByteArray, QSettings, Qt
 from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
-from PySide6.QtWidgets import QLabel, QMainWindow, QPushButton, QSplitter
+from PySide6.QtWidgets import (
+    QLabel,
+    QMainWindow,
+    QPushButton,
+    QSplitter,
+    QVBoxLayout,
+    QWidget,
+)
 
 from app import APP_ID, APP_NAME, __version__
 from app.ui.adjust_panel import AdjustPanel
+from app.ui.canvas_toolbar import CanvasToolbar
 from app.ui.image_view import ImageView
 from app.ui.photo_panel import PhotoPanel
 
-DEFAULT_SPLITTER_SIZES = [220, 900, 280]
+DEFAULT_SPLITTER_SIZES = [220, 880, 300]
 
 
 class MainWindow(QMainWindow):
@@ -29,12 +37,21 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(900, 600)
 
         self.photo_panel = PhotoPanel()
+        self.canvas_toolbar = CanvasToolbar()
         self.image_view = ImageView()
         self.adjust_panel = AdjustPanel()
 
+        # Centre column: toolbar on top of the canvas.
+        self.canvas_area = QWidget()
+        canvas_layout = QVBoxLayout(self.canvas_area)
+        canvas_layout.setContentsMargins(0, 0, 0, 0)
+        canvas_layout.setSpacing(0)
+        canvas_layout.addWidget(self.canvas_toolbar)
+        canvas_layout.addWidget(self.image_view, 1)
+
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.splitter.addWidget(self.photo_panel)
-        self.splitter.addWidget(self.image_view)
+        self.splitter.addWidget(self.canvas_area)
         self.splitter.addWidget(self.adjust_panel)
         self.splitter.setStretchFactor(1, 1)  # extra width goes to the canvas
         self.splitter.setCollapsible(1, False)
@@ -89,6 +106,7 @@ class MainWindow(QMainWindow):
         view_menu.addAction(self._action("zoom_100", "Actual Size (100%)", "Ctrl+1"))
         view_menu.addSeparator()
         view_menu.addAction(self._action("before_after", "Before / After", "\\"))
+        view_menu.addAction(self._action("show_mask", "Show Mask (debug)", "Ctrl+M"))
         view_menu.addSeparator()
         for key, text, shortcut, panel in (
             ("toggle_photos", "Photos Panel", "Ctrl+Alt+1", self.photo_panel),
