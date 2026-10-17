@@ -14,6 +14,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 from app import APP_ID, APP_NAME, __version__
 from app.core.logging_setup import setup_logging
 from app.ui.main_window import MainWindow
+from app.ui.theme import apply_dark_theme
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +65,7 @@ def run(argv: list[str] | None = None) -> int:
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(APP_ID)
     app.setApplicationVersion(__version__)
+    apply_dark_theme(app)
 
     window = MainWindow()
     window.show()
