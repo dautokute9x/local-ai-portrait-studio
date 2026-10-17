@@ -1,0 +1,9 @@
+[project]
+name = "local-ai-portrait-studio"
+version = "0.1.0"
+description = "Personal, offline AI portrait editor. Your images stay on your computer."
+requires-python = ">=3.11,<3.13"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

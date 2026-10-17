@@ -1,0 +1,5 @@
+# Runtime dependencies (Phase 1). Pinned to major versions; see LICENSE_NOTES.md.
+# PySide6-Essentials = QtCore/QtGui/QtWidgets only (~3x smaller than full PySide6).
+PySide6-Essentials>=6.7,<7
+Pillow>=10,<12
+numpy>=1.26,<2

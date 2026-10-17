@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Runtime output
+logs/
+output/
+
+# Models are downloaded by scripts/download_models.py, never committed
+models/*
+!models/README.md
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
