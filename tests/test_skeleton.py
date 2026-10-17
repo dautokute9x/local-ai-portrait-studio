@@ -3,7 +3,6 @@ import logging
 import app
 from app.core import paths
 from app.core.logging_setup import LOG_FILE_NAME, setup_logging
-from app.ui.main_window import MainWindow
 
 
 def test_package_metadata():
@@ -30,10 +29,7 @@ def test_setup_logging_writes_file_and_is_idempotent(tmp_path):
     assert "hello from test" in log_file.read_text(encoding="utf-8")
 
 
-def test_main_window_opens(qtbot):
-    window = MainWindow()
-    qtbot.addWidget(window)
-    window.show()
+def test_main_window_opens(window):
     assert window.isVisible()
     assert "Local AI Portrait Studio" in window.windowTitle()
 
