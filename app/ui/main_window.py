@@ -7,11 +7,17 @@ implements a feature connects and enables its action.
 
 from __future__ import annotations
 
+import logging
+from pathlib import Path
+
 from PySide6.QtCore import QByteArray, QSettings, Qt
 from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
 from PySide6.QtWidgets import (
+    QApplication,
+    QFileDialog,
     QLabel,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QSplitter,
     QVBoxLayout,
@@ -19,12 +25,19 @@ from PySide6.QtWidgets import (
 )
 
 from app import APP_ID, APP_NAME, __version__
+from app.image.io import SUPPORTED_EXTENSIONS, ImageLoadError, LoadedImage, load_image
 from app.ui.adjust_panel import AdjustPanel
 from app.ui.canvas_toolbar import CanvasToolbar
 from app.ui.image_view import ImageView
 from app.ui.photo_panel import PhotoPanel
+from app.ui.qt_image import rgb_to_qimage
+
+log = logging.getLogger(__name__)
 
 DEFAULT_SPLITTER_SIZES = [220, 880, 300]
+# Longest side of the on-screen preview; export always uses full resolution.
+PREVIEW_MAX_DIM = 1600
+OPEN_FILTER = "Images ({})".format(" ".join(f"*{ext}" for ext in SUPPORTED_EXTENSIONS))
 
 
 class MainWindow(QMainWindow):
@@ -59,6 +72,9 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes(DEFAULT_SPLITTER_SIZES)
         self.setCentralWidget(self.splitter)
 
+        self.current: LoadedImage | None = None
+        self.image_view.zoom_changed.connect(self._update_zoom_label)
+
         self.actions: dict[str, QAction] = {}
         self._build_menus()
         self._build_status_bar()
@@ -83,7 +99,9 @@ class MainWindow(QMainWindow):
         bar = self.menuBar()
 
         file_menu = bar.addMenu("&File")
-        file_menu.addAction(self._action("open_image", "Open Image…", "Ctrl+O"))
+        open_action = self._action("open_image", "Open Image…", "Ctrl+O", enabled=True)
+        open_action.triggered.connect(self.open_image_dialog)
+        file_menu.addAction(open_action)
         file_menu.addAction(self._action("open_folder", "Open Folder…", "Ctrl+Shift+O"))
         file_menu.addSeparator()
         file_menu.addAction(self._action("export", "Export…", "Ctrl+E"))
@@ -136,6 +154,42 @@ class MainWindow(QMainWindow):
             status.addPermanentWidget(label)
         status.showMessage("Ready")
 
+    # ----------------------------------------------------------- open image
+    def open_image_dialog(self) -> None:
+        start_dir = str(self._settings.value("paths/last_open_dir", str(Path.home())))
+        filename, _ = QFileDialog.getOpenFileName(self, "Open Image", start_dir, OPEN_FILTER)
+        if filename:
+            self.open_image_path(Path(filename))
+
+    def open_image_path(self, path: Path) -> bool:
+        """Load `path` into the canvas. Errors are shown to the user, never raised."""
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            loaded = load_image(path, max_dim=PREVIEW_MAX_DIM)
+        except ImageLoadError as exc:
+            QApplication.restoreOverrideCursor()
+            log.warning("Open failed: %s", exc)
+            QMessageBox.warning(self, "Không mở được ảnh", str(exc))
+            return False
+        QApplication.restoreOverrideCursor()
+
+        self.current = loaded
+        self.image_view.set_image(rgb_to_qimage(loaded.rgb))
+        self._settings.setValue("paths/last_open_dir", str(path.parent))
+        self.setWindowTitle(f"{path.name} — {APP_NAME} {__version__}")
+        self.statusBar().showMessage(describe(loaded))
+        return True
+
+    def _update_zoom_label(self, *_: object) -> None:
+        if self.current is None or not self.image_view.has_image():
+            self.zoom_label.setText("Zoom: –")
+            return
+        # Zoom relative to the *original* pixels, not the preview's.
+        preview_w = self.current.size[0]
+        original_w = self.current.original_size[0]
+        percent = self.image_view.zoom_factor() * preview_w / original_w * 100
+        self.zoom_label.setText(f"Zoom: {percent:.0f}%")
+
     # ------------------------------------------------------- layout persist
     def _restore_layout(self) -> None:
         settings = self._settings
@@ -151,3 +205,12 @@ class MainWindow(QMainWindow):
         settings.setValue("window/geometry", self.saveGeometry())
         settings.setValue("window/splitter", self.splitter.saveState())
         super().closeEvent(event)
+
+
+def describe(image: LoadedImage) -> str:
+    """Status-bar summary, e.g. "photo.jpg — 6000×4000 — 7.2 MB"."""
+    w, h = image.original_size
+    parts = [image.path.name, f"{w}×{h}", f"{image.file_size / 1_048_576:.1f} MB"]
+    if image.had_alpha:
+        parts.append("nền trong suốt hiển thị trên nền trắng")
+    return " — ".join(parts)
