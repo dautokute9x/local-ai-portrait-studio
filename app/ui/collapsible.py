@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -11,6 +11,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from app.ui.icon_loader import icon
 
 
 class CollapsibleSection(QFrame):
@@ -31,6 +33,9 @@ class CollapsibleSection(QFrame):
         self.reset_button = QToolButton()
         self.reset_button.setObjectName("SectionReset")
         self.reset_button.setText("Reset")
+        self.reset_button.setIcon(icon("rotate-ccw"))
+        self.reset_button.setIconSize(QSize(13, 13))
+        self.reset_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.reset_button.setToolTip(f"Đặt lại nhóm {title}")
         self.reset_button.clicked.connect(self.reset_requested)
 

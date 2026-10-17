@@ -11,6 +11,7 @@ Dự án này **chỉ dùng cho mục đích cá nhân**. Bảng dưới đây g
 | Image I/O, EXIF | Pillow | MIT-CMU (HPND) | Yes | OK |
 | Array | numpy | BSD-3-Clause | Yes | OK |
 | Test | pytest, pytest-qt | MIT | Yes | Chỉ dùng khi phát triển |
+| UI icons | Lucide (`lucide-static` 1.49.0) — 5 file SVG trong `app/ui/icons/` | ISC (một số icon gốc Feather: MIT) | Yes | OK; giữ file `app/ui/icons/LICENSE-lucide.txt` khi phân phối |
 
 ## Dự kiến (chưa cài — chốt ở Checkpoint C từng phase)
 
