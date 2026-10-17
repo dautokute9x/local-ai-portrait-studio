@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QButtonGroup,
     QComboBox,
@@ -13,20 +14,25 @@ from PySide6.QtWidgets import (
     QToolButton,
 )
 
+from app.ui.icon_loader import icon
+
+ICON_SIZE = QSize(18, 18)
+
 
 @dataclass(frozen=True)
 class ToolSpec:
     key: str
     label: str
+    icon: str
     shortcut: str
     tooltip: str
     available_in: str
 
 
 TOOLS: tuple[ToolSpec, ...] = (
-    ToolSpec("pan", "Pan", "H", "Kéo để di chuyển ảnh", "Step 1.5"),
-    ToolSpec("blemish", "Blemish", "B", "Blemish Brush: click/tô vùng mụn", "Phase 5"),
-    ToolSpec("remove", "Remove", "R", "Object Removal: tô vùng cần xóa", "Phase 8"),
+    ToolSpec("pan", "Pan", "hand", "H", "Kéo để di chuyển ảnh", "Step 1.5"),
+    ToolSpec("blemish", "Blemish", "bandage", "B", "Blemish Brush: click/tô vùng mụn", "Phase 5"),
+    ToolSpec("remove", "Remove", "eraser", "R", "Object Removal: tô vùng cần xóa", "Phase 8"),
 )
 
 ZOOM_PRESETS = ("Fit", "25%", "50%", "100%", "200%", "400%")
@@ -45,20 +51,20 @@ class CanvasToolbar(QFrame):
         self.tool_group.setExclusive(True)
         self.tool_buttons: dict[str, QToolButton] = {}
         for spec in TOOLS:
-            button = QToolButton()
-            button.setText(spec.label)
+            button = _icon_button(spec.label, spec.icon)
             button.setCheckable(True)
-            button.setToolTip(f"{spec.tooltip} ({spec.shortcut}) — có từ {spec.available_in}")
+            button.setToolTip(
+                f"{spec.label}: {spec.tooltip} ({spec.shortcut}) — có từ {spec.available_in}"
+            )
             button.setEnabled(False)
             self.tool_group.addButton(button)
             self.tool_buttons[spec.key] = button
             layout.addWidget(button)
 
         layout.addSpacing(12)
-        self.before_after = QToolButton()
-        self.before_after.setText("Before / After")
+        self.before_after = _icon_button("Before / After", "square-split-horizontal")
         self.before_after.setCheckable(True)
-        self.before_after.setToolTip("So sánh ảnh gốc (\\) — có từ Phase 4")
+        self.before_after.setToolTip("Before / After: so sánh ảnh gốc (\\) — có từ Phase 4")
         self.before_after.setEnabled(False)
         layout.addWidget(self.before_after)
 
@@ -69,3 +75,14 @@ class CanvasToolbar(QFrame):
         self.zoom.setEnabled(False)
         self.zoom.setToolTip("Có từ Step 1.5")
         layout.addWidget(self.zoom)
+
+
+def _icon_button(label: str, icon_name: str) -> QToolButton:
+    """Icon-only tool button; the label stays as accessible text."""
+    button = QToolButton()
+    button.setText(label)
+    button.setAccessibleName(label)
+    button.setIcon(icon(icon_name))
+    button.setIconSize(ICON_SIZE)
+    button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+    return button
